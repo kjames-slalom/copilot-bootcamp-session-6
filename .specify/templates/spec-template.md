@@ -100,6 +100,13 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+## Constitution Alignment *(mandatory)*
+
+- **CA-001 Scope Alignment**: Describe how this feature stays within approved functional scope; if it adds out-of-scope capability, cite the approved amendment.
+- **CA-002 Test-First Plan**: Identify the required failing-first unit and integration tests for each user story.
+- **CA-003 Integration Impact**: Document affected frontend/backend contract and persistence behaviors.
+- **CA-004 UX and Accessibility**: Define keyboard, focus, contrast, and theme behavior expectations for impacted UI paths.
+
 ## Success Criteria *(mandatory)*
 
 <!--

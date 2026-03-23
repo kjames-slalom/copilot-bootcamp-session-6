@@ -31,7 +31,12 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] Code quality approach is defined (naming, module responsibility, error handling, and import hygiene).
+- [ ] Scope control is explicit: feature maps to approved functional requirements and excludes out-of-scope additions unless a documented amendment exists.
+- [ ] Test-first strategy is defined: failing tests first, then implementation, with unit/integration coverage approach and 80%+ coverage target.
+- [ ] Integration reliability is covered for impacted frontend/backend flows and persistence behavior.
+- [ ] UI/accessibility expectations are addressed when UI changes exist (keyboard access, visible focus, contrast, and theme behavior).
+- [ ] Any constitution violation is logged in Complexity Tracking with rationale and rejected simpler alternative.
 
 ## Project Structure
 
