@@ -3,6 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import App from '../App';
+import { createOverdueTestTodos, toIsoDateWithOffset } from './fixtures/overdueTodos';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -231,5 +232,117 @@ describe('App Component', () => {
     const themToggleAfter = screen.getByRole('button', { name: /Switch to light mode/ });
     fireEvent.click(themToggleAfter);
     expect(localStorage.getItem('todoAppTheme')).toBe('light');
+  });
+
+  test('renders overdue todos before non-overdue todos on load', async () => {
+    server.use(
+      rest.get('/api/todos', (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(createOverdueTestTodos()));
+      })
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Past due incomplete')).toBeInTheDocument();
+    });
+
+    const todoTitles = screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent);
+    expect(todoTitles[0]).toBe('Past due incomplete');
+    expect(screen.getByText('Overdue')).toBeInTheDocument();
+  });
+
+  test('removes overdue badge after editing overdue todo to future date', async () => {
+    const overdueDate = toIsoDateWithOffset(-1);
+    const futureDate = toIsoDateWithOffset(2);
+
+    server.use(
+      rest.get('/api/todos', (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            {
+              id: 10,
+              title: 'Editable overdue',
+              dueDate: overdueDate,
+              completed: 0,
+              createdAt: '2025-11-01T00:00:00Z',
+            },
+          ])
+        );
+      }),
+      rest.put('/api/todos/:id', (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: parseInt(req.params.id, 10),
+            title: 'Editable overdue',
+            dueDate: futureDate,
+            completed: 0,
+            createdAt: '2025-11-01T00:00:00Z',
+          })
+        );
+      })
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Overdue')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('Edit "Editable overdue"'));
+    fireEvent.change(screen.getByLabelText('Edit due date'), { target: { value: futureDate } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    });
+  });
+
+  test('shows overdue badge after toggling completed past-due todo to incomplete', async () => {
+    const overdueDate = toIsoDateWithOffset(-2);
+
+    server.use(
+      rest.get('/api/todos', (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            {
+              id: 11,
+              title: 'Toggled todo',
+              dueDate: overdueDate,
+              completed: 1,
+              createdAt: '2025-11-01T00:00:00Z',
+            },
+          ])
+        );
+      }),
+      rest.patch('/api/todos/:id/toggle', (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: parseInt(req.params.id, 10),
+            title: 'Toggled todo',
+            dueDate: overdueDate,
+            completed: 0,
+            createdAt: '2025-11-01T00:00:00Z',
+          })
+        );
+      })
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Toggled todo')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Overdue')).toBeInTheDocument();
+    });
   });
 });

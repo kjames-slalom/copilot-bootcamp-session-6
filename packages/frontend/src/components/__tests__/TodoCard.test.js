@@ -99,4 +99,39 @@ describe('TodoCard Component', () => {
     
     expect(screen.queryByText(/Due:/)).not.toBeInTheDocument();
   });
+
+  it('should render overdue badge and class for incomplete past-due todo', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-03-23T10:00:00Z'));
+
+    const overdueTodo = {
+      ...mockTodo,
+      dueDate: '2026-03-20',
+      completed: 0,
+    };
+
+    const { container } = render(<TodoCard todo={overdueTodo} {...mockHandlers} isLoading={false} />);
+
+    expect(screen.getByText('Overdue')).toBeInTheDocument();
+    expect(container.querySelector('.todo-card')).toHaveClass('overdue');
+
+    jest.useRealTimers();
+  });
+
+  it('should not render overdue badge for completed past-due todo', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-03-23T10:00:00Z'));
+
+    const completedOverdueTodo = {
+      ...mockTodo,
+      dueDate: '2026-03-20',
+      completed: 1,
+    };
+
+    render(<TodoCard todo={completedOverdueTodo} {...mockHandlers} isLoading={false} />);
+
+    expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+
+    jest.useRealTimers();
+  });
 });

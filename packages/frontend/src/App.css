@@ -334,6 +334,14 @@ p {
   color: var(--success-color);
 }
 
+.todo-card.overdue {
+  border-color: var(--danger-color);
+}
+
+.todo-card.overdue .todo-title {
+  color: var(--danger-color);
+}
+
 .todo-checkbox {
   width: 20px;
   height: 20px;
@@ -358,6 +366,24 @@ p {
   font-weight: 600;
   color: var(--text-primary);
   word-break: break-word;
+}
+
+.todo-title-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.overdue-badge {
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .todo-due-date {

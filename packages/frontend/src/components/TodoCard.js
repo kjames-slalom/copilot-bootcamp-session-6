@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { isOverdue } from '../utils/overdueUtils';
 
 function TodoCard({ todo, onToggle, onEdit, onDelete, isLoading }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editDueDate, setEditDueDate] = useState(todo.dueDate || '');
   const [editError, setEditError] = useState(null);
+  const completed = Boolean(todo.completed);
+  const overdue = isOverdue(todo);
 
   const handleToggle = async () => {
     try {
@@ -54,7 +57,12 @@ function TodoCard({ todo, onToggle, onEdit, onDelete, isLoading }) {
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
-    const date = new Date(dateString);
+    const date = new Date(`${dateString}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -107,18 +115,21 @@ function TodoCard({ todo, onToggle, onEdit, onDelete, isLoading }) {
   }
 
   return (
-    <div className={`todo-card ${todo.completed ? 'completed' : ''}`}>
+    <div className={`todo-card ${completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`}>
       <input
         type="checkbox"
-        checked={todo.completed === 1}
+        checked={completed}
         onChange={handleToggle}
         disabled={isLoading}
         className="todo-checkbox"
-        aria-label={`Mark "${todo.title}" as ${todo.completed ? 'incomplete' : 'complete'}`}
+        aria-label={`Mark "${todo.title}" as ${completed ? 'incomplete' : 'complete'}`}
       />
 
       <div className="todo-content">
-        <h3 className="todo-title">{todo.title}</h3>
+        <div className="todo-title-row">
+          <h3 className="todo-title">{todo.title}</h3>
+          {overdue && <span className="overdue-badge">Overdue</span>}
+        </div>
         {todo.dueDate && (
           <p className="todo-due-date">
             Due: {formatDate(todo.dueDate)}

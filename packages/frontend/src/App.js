@@ -4,6 +4,7 @@ import TodoList from './components/TodoList';
 import ThemeToggle from './components/ThemeToggle';
 import ConfirmDialog from './components/ConfirmDialog';
 import TodoService from './services/todoService';
+import { sortByOverdue } from './utils/overdueUtils';
 import './App.css';
 
 function App() {
@@ -50,7 +51,7 @@ function App() {
   const handleCreateTodo = async (title, dueDate) => {
     try {
       const newTodo = await TodoService.createTodo(title, dueDate);
-      setTodos([newTodo, ...todos]);
+      setTodos((prevTodos) => [newTodo, ...prevTodos]);
       setError(null);
     } catch (err) {
       console.error('Error creating todo:', err);
@@ -62,7 +63,9 @@ function App() {
   const handleToggleTodo = async (todoId) => {
     try {
       const updatedTodo = await TodoService.toggleTodoStatus(todoId);
-      setTodos(todos.map(todo => (todo.id === todoId ? updatedTodo : todo)));
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.id === todoId ? updatedTodo : todo))
+      );
       setError(null);
     } catch (err) {
       console.error('Error toggling todo:', err);
@@ -73,7 +76,9 @@ function App() {
   const handleEditTodo = async (todoId, title, dueDate) => {
     try {
       const updatedTodo = await TodoService.updateTodo(todoId, title, dueDate);
-      setTodos(todos.map(todo => (todo.id === todoId ? updatedTodo : todo)));
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.id === todoId ? updatedTodo : todo))
+      );
       setError(null);
     } catch (err) {
       console.error('Error updating todo:', err);
@@ -91,7 +96,7 @@ function App() {
     try {
       setIsDeleting(true);
       await TodoService.deleteTodo(deletingTodoId);
-      setTodos(todos.filter(todo => todo.id !== deletingTodoId));
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== deletingTodoId));
       setShowDeleteConfirm(false);
       setDeletingTodoId(null);
       setError(null);
@@ -111,6 +116,8 @@ function App() {
   const handleToggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
+
+  const visibleTodos = sortByOverdue(todos);
 
   return (
     <div className="app">
@@ -146,7 +153,7 @@ function App() {
 
           {!loading && (
             <TodoList
-              todos={todos}
+              todos={visibleTodos}
               onToggle={handleToggleTodo}
               onEdit={handleEditTodo}
               onDelete={handleDeleteTodo}

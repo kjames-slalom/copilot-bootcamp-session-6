@@ -102,6 +102,13 @@ All spacing follows an 8px grid system for consistency:
 - Title text: Strike-through with reduced opacity (0.6)
 - Checkbox: Marked/filled with success color
 
+#### Overdue State
+- Applies only to incomplete todos with past due dates
+- Card border and title use danger color token (`--danger-color`)
+- Show explicit text badge/label: "Overdue"
+- Overdue status must not be communicated by color alone
+- Overdue styling must remain readable in both light and dark themes
+
 ### Input Fields
 - **Border**: 1px solid border color
 - **Border Radius**: 4px

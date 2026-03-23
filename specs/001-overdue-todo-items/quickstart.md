@@ -63,6 +63,11 @@ npm test --workspace=packages/frontend -- --coverage
 
 Expected: all tests pass; frontend coverage ≥ 80%.
 
+## Execution Notes
+
+- 2026-03-23: Ran `npm test --workspace=packages/frontend -- --watchAll=false`
+- Result: 9 test suites passed, 69 tests passed, frontend coverage 81.65% statements (>= 80% target)
+
 ---
 
 ## Key Files Modified by This Feature
